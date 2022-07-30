@@ -1,0 +1,7 @@
+name: KitPvP
+version: 1.0
+main: org.example.kitpvp.KitPvP
+commands:
+  lobby:
+    description: send player to lobby
+    usage: /lobby
