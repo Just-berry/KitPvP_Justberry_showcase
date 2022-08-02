@@ -5,20 +5,20 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class Commands implements CommandExecutor {
+public class LobbyCommand implements CommandExecutor {
 
     //On use of /lobby send player to the lobby server
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player) {
-            if (command.getName().equalsIgnoreCase("lobby")) {
-                if (args.length == 0) {
-                    Player player = (Player) sender;
-                    BungeeCommands.sendToServer(player, "lobby");
-                } else {
-                    sender.sendMessage("/lobby does not need any arguments");
-                }
+            if (args.length == 0) {
+                BungeeCommands.sendToServer(((Player) sender), "lobby");
+            } else {
+                ((Player) sender).sendMessage("/lobby does not need any arguments");
             }
+        }
+        else {
+            System.out.println("The console/command block cannot be send to the lobby, that would be weird");
         }
         return true;
     }

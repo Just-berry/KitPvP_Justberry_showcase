@@ -24,46 +24,46 @@ public class KitSelector {
         int slots = rows*9+9;
         inv = Bukkit.getServer().createInventory(null, slots, "Kits");
 
-        int i = 0;
+        int slotNumber = 0;
         //for al armours found, create a button selector using the name from the armour as lore for the selector
         for (String key : keys) {
             String armour = String.format(key.toUpperCase() + "_CHESTPLATE");
-            inv.setItem(i, createItem(armour, key));
-            i++;
+            inv.setItem(slotNumber, createItem(armour, key));
+            slotNumber++;
         }
     }
 
     //Create sword as button for the kit selector with correct lore
     private ItemStack createItem(String name, String key){
-        ItemStack i = new ItemStack(Material.getMaterial(name), 1);
-        ItemMeta im = i.getItemMeta();
-        im.setDisplayName(key);
-        im.setLore(Arrays.asList("Select " + key.toLowerCase() + " armour"));
-        i.setItemMeta(im);
-        return i;
+        ItemStack item = new ItemStack(Material.getMaterial(name), 1);
+        ItemMeta iMeta = item.getItemMeta();
+        iMeta.setDisplayName(key);
+        iMeta.setLore(Arrays.asList("Select " + key.toLowerCase() + " armour"));
+        item.setItemMeta(iMeta);
+        return item;
     }
 
     //Open the created inventory
-    public void show(Player p){
-        p.openInventory(inv);
+    public void show(Player player){
+        player.openInventory(inv);
     }
 
-    //Clears player inv - Get armours with the selected kitname & check if not null - Check if player has enough inventory
-    //Check if armour piece is a sword, if not place it in the armour slot of the player. else place it in slot 1 of the player (hotbar)
+    //Clears player inv - Get armour with the selected kitname - Place in armout slots
+    //Check if armour piece is a sword place it in slot 1 of the player (hotbar)
     public void giveSelectedKit(Player player, String kitName){
         player.getInventory().clear();
         List<String> armor = KitPvP.getInstance().getConfig().getStringList(kitName);
         ItemStack[] armour = new ItemStack[4];
-        int i = 0;
+        int armourSlot = 0;
         for (String value : armor){
             if (Material.getMaterial(value) != null) {
-                ItemStack piece = new ItemStack(Material.getMaterial(value), 1);
+                ItemStack item = new ItemStack(Material.getMaterial(value), 1);
                 if(! value.toLowerCase().contains("sword")) {
-                    armour[i] = new ItemStack(Material.getMaterial(value), 1);
-                    i++;
+                    armour[armourSlot] = item;
+                    armourSlot++;
                 }
                 else {
-                    player.getInventory().setItem(0, piece);
+                    player.getInventory().setItem(0, item);
                 }
             } else {
                 player.sendMessage("Config screwed up: " + value);
@@ -73,19 +73,20 @@ public class KitSelector {
         player.closeInventory();
     }
 
-    //Clear player inv - create kit selector item with correct display name and lore
-    //Place the kit selector in the first slot of the players hotbar
+    //Clear player inv - Give the kit selector item in players hotbar
     public void giveKitSelector(Player player){
         PlayerInventory inv = player.getInventory();
-        player.getInventory().clear();
+        inv.clear();
+        //Create item & set lore correct
         ItemStack selector = new ItemStack(Material.SPECTRAL_ARROW, 1);
-        ItemMeta im = selector.getItemMeta();
+        ItemMeta iMeta = selector.getItemMeta();
         ArrayList<String> lore = new ArrayList<String>();
         lore.add("§fRight Click to open the kit selector!");
-        im.setDisplayName("§a§lKit selector §f(Right Click)");
-        im.setLore(lore);
-        selector.setItemMeta(im);
-        inv.setItem(0, selector); //Slot 1 = 0
+        iMeta.setDisplayName("§a§lKit selector §f(Right Click)");
+        iMeta.setLore(lore);
+        selector.setItemMeta(iMeta);
+        //Give item and select it for the player
+        inv.setItem(0, selector);
         player.getInventory().setHeldItemSlot(0);
     }
 }

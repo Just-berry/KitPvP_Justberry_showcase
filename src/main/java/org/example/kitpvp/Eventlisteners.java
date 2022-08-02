@@ -10,29 +10,30 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import java.sql.SQLException;
 
 public class Eventlisteners implements Listener{
+    private KitPvP main;
 
+    public  Eventlisteners(KitPvP main){
+        this.main = main;
+    }
     //If player gets damaged check if the player health goes below 0
-    //if so increase deaths, check if damamger was a player and than increase that players kill ratio
-    //Cancel last damage event and teleport damaged player to the lobby
+    //if so, increase deaths & check if attacker was a player and then increase that players kill score
     @EventHandler
     public void PlayerDamageReceive(EntityDamageByEntityEvent DamageEvent) throws SQLException {
         if(DamageEvent.getEntity() instanceof Player) {
             ScoreBoardPlayer score = new ScoreBoardPlayer();
             Player player = (Player) DamageEvent.getEntity();
             if((player.getHealth()-DamageEvent.getFinalDamage()) <= 0) {
-                //Killed - removed seperate sqlaction for killed and killer
                 MySQLActions sqlAction = new MySQLActions();
-
                 if(DamageEvent.getDamager() instanceof Player){
                     sqlAction.updatePlayerDeaths(player);
                     score.updateScoreBoard(player);
                     sqlAction.updatePlayerKills((Player) DamageEvent.getDamager());
-                    //score.updateScoreBoard((Player) DamageEvent.getDamager());
                     DamageEvent.getDamager().sendMessage("You killed: " + player.getDisplayName());
                     player.sendMessage("You got killed by: " + ((Player) DamageEvent.getDamager()).getDisplayName());
                 }
@@ -50,23 +51,37 @@ public class Eventlisteners implements Listener{
         }
     }
 
-    //On join check if player has a database value, else create one
-    //Create scoreboard for the player with KD ratios
-    //Teleport player to spawn point
-    //Give player kit selector tool
+    //On join setup player info
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) throws SQLException {
-        MySQLActions sqlAction = new MySQLActions();
-        sqlAction.checkPlayerData(event.getPlayer());
-        ScoreBoardPlayer score = new ScoreBoardPlayer();
-        score.setScoreBoard(event.getPlayer());
-        event.getPlayer().teleport(event.getPlayer().getWorld().getSpawnLocation());
+    public void onPlayerJoin(PlayerJoinEvent event){
+        Player player = event.getPlayer();
+        try {
+            CustomPlayer playerData = new CustomPlayer(main, player.getUniqueId());
+            main.getPlayerManager().addCustomPlayer(player.getUniqueId(),playerData);
+        } catch (SQLException ex){
+            player.kickPlayer("Database error");
+        }
 
+
+        //Player player = event.getPlayer();
+        //Check/Create DB record
+        MySQLActions sqlAction = new MySQLActions();
+        sqlAction.checkPlayerData(player);
+        //Create scoreboard
+        ScoreBoardPlayer score = new ScoreBoardPlayer();
+        score.setScoreBoard(player);
+        event.getPlayer().teleport(player.getWorld().getSpawnLocation());
         //Clear inv and give player kit selector tool
         KitSelector kitselector = new KitSelector();
-        kitselector.giveKitSelector(event.getPlayer());
+        kitselector.giveKitSelector(player);
     }
 
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e){
+        main.getPlayerManager().removeCustomPlayer(e.getPlayer().getUniqueId());
+    }
+
+    //On respawn reset player
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event){
         //Clear inv and give player kit selector tool
@@ -74,7 +89,7 @@ public class Eventlisteners implements Listener{
         kitselector.giveKitSelector(event.getPlayer());
     }
 
-    //Verander naar toolbar event van item hier boven gekozen
+    //Check if player interacts with the kit selector
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) throws SQLException {
         if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK ) {
@@ -87,8 +102,8 @@ public class Eventlisteners implements Listener{
 
 
     //On inventory click, check if the inventory is our special kit selector inventory
-    //If so check if clicked item has the same name as an armour from the config file
-    //if so cancel click event and give player the kit selected
+    //Check if clicked item to the config file
+    //Cancel click event and give player the kit
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e){
         KitSelector inventory = new KitSelector();

@@ -24,5 +24,4 @@ public class BungeeCommands {
         player.sendPluginMessage(KitPvP.getInstance(),"BungeeCord",byteArray.toByteArray());
 
     }
-
 }

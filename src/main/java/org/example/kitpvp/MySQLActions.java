@@ -19,7 +19,57 @@ public class MySQLActions {
     private final String user = KitPvP.getInstance().getDBConfig().getString("user");
     private final String password = KitPvP.getInstance().getDBConfig().getString("password");
     private final String table = KitPvP.getInstance().getDBConfig().getString("table");
+    private Connection connection;
 
+    public void connect() throws SQLException {
+        connection = DriverManager.getConnection(url, user, password);
+    }
+
+    public boolean isConnected(){
+        return connection != null;
+    }
+
+    public Connection getConnection() {
+        return connection;
+    }
+
+    public void disconnect(){
+        if(isConnected()) {
+            try {
+                connection.close();
+            } catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void prepStatements() throws SQLException {
+        PreparedStatement psCreate = getConnection().prepareStatement("INSERT INTO ? (player_uuid, kills, deaths) VALUES (?, '0', '0')");
+        psCreate.setString(1,table);
+        psCreate.setString(2,"asda");
+        psCreate.executeUpdate();
+
+        PreparedStatement psUpdate = getConnection().prepareStatement("UPDATE ? SET kills = ? WHERE player_uuid = ?");
+        psUpdate.setString(1,table);
+        psUpdate.setInt(2, 123);
+        psUpdate.setString(3,"asda");
+        psUpdate.executeUpdate();
+
+        PreparedStatement psDelete = getConnection().prepareStatement("DELETE FROM ? WHERE player_uuid = ?");
+        psDelete.setString(1,table);
+        psDelete.setString(2,"asda");
+        psDelete.executeUpdate();
+
+        PreparedStatement psGetAll = getConnection().prepareStatement("SELECT * FROM ? WHERE player_uuid=?");
+        psGetAll.setString(1,table);
+        psGetAll.setString(2,"asda");
+        ResultSet rs = psGetAll.executeQuery();
+        //loop while info
+
+        while(rs.next()){
+
+        }
+    }
 
     //Checks if player exists in the DB else creates a new player item
     public void checkPlayerData(Player player) {
