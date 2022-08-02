@@ -1,5 +1,5 @@
 con : null
 url : jdbc:mysql://localhost:3306/berrynetworkdb?allowPublicKeyRetrieval=true&useSSL=false
 user : root
-password : MySQL531
+password : 
 table : berrynetworkdb.kill_deaths
