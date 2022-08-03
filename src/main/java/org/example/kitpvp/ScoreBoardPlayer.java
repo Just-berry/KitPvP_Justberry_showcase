@@ -6,12 +6,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 public class ScoreBoardPlayer {
-
+    private KitPvP main;
     //Construct scoreboard player on joining the server
     //Retrieves all the needed information from the database
+    public ScoreBoardPlayer(KitPvP main){
+        this.main = main;
+    }
+
     public void setScoreBoard(Player player) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-
         setScoreboardASync(player, board, new Callback() {
             @Override
             public void onAsyncDone(Scoreboard board) {
@@ -24,7 +27,9 @@ public class ScoreBoardPlayer {
         Bukkit.getScheduler().runTaskAsynchronously(KitPvP.getInstance(), new Runnable() {
             @Override
             public void run() {
-                MySQLActions sqlAction = new MySQLActions();
+                //MySQLActions sqlAction = new MySQLActions();
+                int killsI = main.getPlayerManager().getCustomPlayer(player.getUniqueId()).getKills();
+                int deathsI = main.getPlayerManager().getCustomPlayer(player.getUniqueId()).getDeaths();
                 Objective obj = board.registerNewObjective("BerryNetwork", "dummy", "KitPvP");
                 obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
@@ -36,7 +41,7 @@ public class ScoreBoardPlayer {
 
                 Team kills = board.registerNewTeam("Kills");
                 kills.addEntry(ChatColor.BLACK + "" + ChatColor.WHITE);
-                kills.setPrefix(sqlAction.getKills(player));
+                kills.setPrefix(String.valueOf(killsI));
                 obj.getScore(ChatColor.BLACK + "" + ChatColor.WHITE).setScore(13);
 
                 Score DeathName = obj.getScore(ChatColor.GRAY + "Deaths:");
@@ -44,8 +49,8 @@ public class ScoreBoardPlayer {
 
                 Team deaths = board.registerNewTeam("Deaths");
                 deaths.addEntry(ChatColor.RED + "" + ChatColor.WHITE);
-                String death = sqlAction.getDeaths(player);
-                deaths.setPrefix(death);
+                //String death = sqlAction.getDeaths(player);
+                deaths.setPrefix(String.valueOf(deathsI));
 
                 obj.getScore(ChatColor.RED + "" + ChatColor.WHITE).setScore(11);
 
@@ -56,24 +61,20 @@ public class ScoreBoardPlayer {
                 deathsT.addEntry(ChatColor.BLUE + "" + ChatColor.WHITE);
 
                 //Calculation for the K/D ratio
-                double KDKills = Double.parseDouble(sqlAction.getKills(player));
-                double[] KDDeaths = {0};
-                String sDeaths = sqlAction.getDeaths(player);
-                KDDeaths[0] = Double.parseDouble(sDeaths);
-
+                //String sDeaths = sqlAction.getDeaths(player);
+                //KDDeaths[0] = Double.parseDouble(sDeaths);
                 //double KDDeaths = Double.parseDouble(sqlAction.getDeaths(player));
-                double KDRatiof = 0.0;
-
-                if (KDDeaths[0] != 0) {
-                    KDRatiof = KDKills / KDDeaths[0];
+                double KDRatio = 0.0;
+                if (deathsI != 0) {
+                    KDRatio = killsI / deathsI;
                     double scale = Math.pow(10, 1);
-                    KDRatiof = Math.round(KDRatiof * scale) / scale;
+                    KDRatio = Math.round(KDRatio * scale) / scale;
                 }
                 //if deaths is 0 set KD to amount of kills
                 else {
-                    KDRatiof = KDKills;
+                    KDRatio = killsI;
                 }
-                String KDRatios = String.format("%s", KDRatiof);
+                String KDRatios = String.format("%s", KDRatio);
                 deathsT.setPrefix(KDRatios);
                 obj.getScore(ChatColor.BLUE + "" + ChatColor.WHITE).setScore(9);
                 Bukkit.getScheduler().runTask(KitPvP.getInstance(), new Runnable() {
@@ -99,31 +100,32 @@ public class ScoreBoardPlayer {
         Bukkit.getScheduler().runTaskAsynchronously(KitPvP.getInstance(), new Runnable() {
             @Override
             public void run() {
-                MySQLActions sqlAction = new MySQLActions();
+                //MySQLActions sqlAction = new MySQLActions();
                 Scoreboard board = player.getScoreboard();
-                String KDKillsS = sqlAction.getKills(player);
-                String[] KDDeathsS = new String[1];
-                String deaths = sqlAction.getDeaths(player);
-                KDDeathsS[0] = deaths;
+                int kills = main.getPlayerManager().getCustomPlayer(player.getUniqueId()).getKills();
+                int deaths = main.getPlayerManager().getCustomPlayer(player.getUniqueId()).getDeaths();
+                //String KDKillsS = sqlAction.getKills(player);
+                //String[] KDDeathsS = new String[1];
+                //String deaths = sqlAction.getDeaths(player);
+                //KDDeathsS[0] = deaths;
 
                 //String KDDeathsS = sqlAction.getDeaths(player);
-                board.getTeam("Kills").setPrefix(KDKillsS);
-                board.getTeam("Deaths").setPrefix(KDDeathsS[0]);
-                double KDKills = Double.parseDouble(sqlAction.getKills(player));
-                double[] KDDeaths = new double[1];
-                String death = sqlAction.getDeaths(player);
-                KDDeaths[0] = Double.parseDouble(death);
+                board.getTeam("Kills").setPrefix(String.valueOf(kills));
+                board.getTeam("Deaths").setPrefix(String.valueOf(deaths));
 
+                //double[] KDDeaths = new double[1];
+                //String death = sqlAction.getDeaths(player);
+                //KDDeaths[0] = Double.parseDouble(death);
                 //double KDDeaths = Double.parseDouble(sqlAction.getDeaths(player));
-                double KDRatiof = 0.0;
-                if (KDDeaths[0] != 0) {
-                    KDRatiof = KDKills / KDDeaths[0];
+                double KDRatio = 0.0;
+                if (deaths != 0) {
+                    KDRatio = kills / deaths;
                     double scale = Math.pow(10, 1);
-                    KDRatiof = Math.round(KDRatiof * scale) / scale;
+                    KDRatio = Math.round(KDRatio * scale) / scale;
                 } else {
-                    KDRatiof = KDKills;
+                    KDRatio = kills;
                 }
-                String KDRatios = String.format("%s", KDRatiof);
+                String KDRatios = String.format("%s", KDRatio);
                 board.getTeam("KD").setPrefix(KDRatios);
             }
         });

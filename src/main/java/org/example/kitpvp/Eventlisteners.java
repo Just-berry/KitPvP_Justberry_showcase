@@ -25,18 +25,17 @@ public class Eventlisteners implements Listener{
     //if so, increase deaths & check if attacker was a player and then increase that players kill score
     @EventHandler
     public void PlayerDamageReceive(EntityDamageByEntityEvent DamageEvent) throws SQLException {
-        if(DamageEvent.getEntity() instanceof Player) {
-            ScoreBoardPlayer score = new ScoreBoardPlayer();
+        if(DamageEvent.getEntity() instanceof Player & DamageEvent.getDamager() instanceof Player) {
             Player player = (Player) DamageEvent.getEntity();
+            Player killer = (Player) DamageEvent.getDamager();
             if((player.getHealth()-DamageEvent.getFinalDamage()) <= 0) {
-                MySQLActions sqlAction = new MySQLActions();
-                if(DamageEvent.getDamager() instanceof Player){
-                    sqlAction.updatePlayerDeaths(player);
-                    score.updateScoreBoard(player);
-                    sqlAction.updatePlayerKills((Player) DamageEvent.getDamager());
-                    DamageEvent.getDamager().sendMessage("You killed: " + player.getDisplayName());
-                    player.sendMessage("You got killed by: " + ((Player) DamageEvent.getDamager()).getDisplayName());
-                }
+                //MySQLActions sqlAction = new MySQLActions();
+                main.getPlayerManager().getCustomPlayer(player.getUniqueId()).increaseDeaths(player);
+                main.getPlayerManager().getCustomPlayer(killer.getUniqueId()).increaseKills(killer);
+                //sqlAction.updatePlayerDeaths(player);
+                //sqlAction.updatePlayerKills((Player) DamageEvent.getDamager());
+                killer.sendMessage("You killed: " + player.getDisplayName() + " - Current kills:" + main.getPlayerManager().getCustomPlayer(killer.getUniqueId()).getKills());
+                player.sendMessage("You got killed by: " + ((Player) DamageEvent.getDamager()).getDisplayName() + " - Current deaths:" + main.getPlayerManager().getCustomPlayer(player.getUniqueId()).getDeaths());
             }
         }
     }
@@ -62,13 +61,13 @@ public class Eventlisteners implements Listener{
             player.kickPlayer("Database error");
         }
 
-
         //Player player = event.getPlayer();
         //Check/Create DB record
-        MySQLActions sqlAction = new MySQLActions();
-        sqlAction.checkPlayerData(player);
+        //MySQLActions sqlAction = new MySQLActions();
+        //sqlAction.checkPlayerData(player);
+
         //Create scoreboard
-        ScoreBoardPlayer score = new ScoreBoardPlayer();
+        ScoreBoardPlayer score = new ScoreBoardPlayer(main);
         score.setScoreBoard(player);
         event.getPlayer().teleport(player.getWorld().getSpawnLocation());
         //Clear inv and give player kit selector tool

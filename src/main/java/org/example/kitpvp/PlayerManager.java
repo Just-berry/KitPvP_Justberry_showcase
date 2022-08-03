@@ -6,6 +6,7 @@ import java.util.UUID;
 public class PlayerManager {
 
     private HashMap<UUID, CustomPlayer> customPlayers = new HashMap<>();
+
     public CustomPlayer getCustomPlayer(UUID uuid){
         return customPlayers.get(uuid);
     }

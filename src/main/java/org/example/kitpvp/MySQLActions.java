@@ -1,5 +1,6 @@
 package org.example.kitpvp;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -13,65 +14,42 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class MySQLActions {
-    //JavaPlugin plugin;
     private java.sql.Connection con = null;
-    private final String url = KitPvP.getInstance().getDBConfig().getString("url");
-    private final String user = KitPvP.getInstance().getDBConfig().getString("user");
-    private final String password = KitPvP.getInstance().getDBConfig().getString("password");
-    private final String table = KitPvP.getInstance().getDBConfig().getString("table");
-    private Connection connection;
+    private final String URL = KitPvP.getInstance().getDBConfig().getString("url");
+    private final String POORT = KitPvP.getInstance().getDBConfig().getString("poort");
+    private final String DATABASE = KitPvP.getInstance().getDBConfig().getString("database");
+    private final String USER = KitPvP.getInstance().getDBConfig().getString("user");
+    private final String PASSWORD = KitPvP.getInstance().getDBConfig().getString("password");
+
+
+    private HikariDataSource hikari;
 
     public void connect() throws SQLException {
-        connection = DriverManager.getConnection(url, user, password);
+        hikari = new HikariDataSource();
+        hikari.setDataSourceClassName("com.mysql.cj.jdbc.MysqlDataSource");
+        hikari.addDataSourceProperty("serverName",URL);
+        hikari.addDataSourceProperty("port",POORT);
+        hikari.addDataSourceProperty("databaseName",DATABASE);
+        hikari.addDataSourceProperty("user",USER);
+        hikari.addDataSourceProperty("password",PASSWORD);
+        //connection = DriverManager.getConnection(url, user, password);
     }
 
     public boolean isConnected(){
-        return connection != null;
+        return hikari != null;
     }
 
-    public Connection getConnection() {
-        return connection;
+    public HikariDataSource getHikari() {
+        return hikari;
     }
 
     public void disconnect(){
         if(isConnected()) {
-            try {
-                connection.close();
-            } catch (SQLException e){
-                e.printStackTrace();
-            }
+            hikari.close();
         }
     }
 
-    public void prepStatements() throws SQLException {
-        PreparedStatement psCreate = getConnection().prepareStatement("INSERT INTO ? (player_uuid, kills, deaths) VALUES (?, '0', '0')");
-        psCreate.setString(1,table);
-        psCreate.setString(2,"asda");
-        psCreate.executeUpdate();
-
-        PreparedStatement psUpdate = getConnection().prepareStatement("UPDATE ? SET kills = ? WHERE player_uuid = ?");
-        psUpdate.setString(1,table);
-        psUpdate.setInt(2, 123);
-        psUpdate.setString(3,"asda");
-        psUpdate.executeUpdate();
-
-        PreparedStatement psDelete = getConnection().prepareStatement("DELETE FROM ? WHERE player_uuid = ?");
-        psDelete.setString(1,table);
-        psDelete.setString(2,"asda");
-        psDelete.executeUpdate();
-
-        PreparedStatement psGetAll = getConnection().prepareStatement("SELECT * FROM ? WHERE player_uuid=?");
-        psGetAll.setString(1,table);
-        psGetAll.setString(2,"asda");
-        ResultSet rs = psGetAll.executeQuery();
-        //loop while info
-
-        while(rs.next()){
-
-        }
-    }
-
-    //Checks if player exists in the DB else creates a new player item
+/*    //Checks if player exists in the DB else creates a new player item
     public void checkPlayerData(Player player) {
         String sqlFindPlayer = String.format("SELECT * FROM %s WHERE player_uuid='%s'", table,player.getUniqueId().toString());
         checkPlayerAsync(sqlFindPlayer, new QueryCallback() {
@@ -155,8 +133,8 @@ public class MySQLActions {
                 updateSQLASync(sqlSetKills, new QueryCallback() {
                     @Override
                     public void onQueryDone(ArrayList filler) {
-                        ScoreBoardPlayer score = new ScoreBoardPlayer();
-                        score.updateScoreBoard(player);
+//                        ScoreBoardPlayer score = new ScoreBoardPlayer();
+//                        score.updateScoreBoard(player);
                     }
                 });
             }
@@ -199,12 +177,12 @@ public class MySQLActions {
 
     public interface QueryCallback{
             public void onQueryDone(ArrayList results);
-    }
+    }*/
 
 
     //Makes connections to the database and runs the provided SQL query
     //This is for SELECT queries
-    public ArrayList runSQL(String sqlQuery){
+    /*public ArrayList runSQL(String sqlQuery){
         try {
             //setup connection to the DB
             con = DriverManager.getConnection(url, user, password);
@@ -233,11 +211,11 @@ public class MySQLActions {
             return null;
         }
 
-    }
+    }*/
 
     //Runs the given sql query from the previous commands
     //This is for UPDATE queries
-    public boolean updateSQL(String sqlQuery){
+/*    public boolean updateSQL(String sqlQuery){
         try {
             //setup connection to the DB
             con = DriverManager.getConnection(url, user, password);
@@ -256,7 +234,7 @@ public class MySQLActions {
             //return false on failure
             return false;
         }
-    }
+    }*/
 }
 
 
