@@ -18,6 +18,8 @@ import org.example.kitpvp.player.CustomPlayer;
 import org.example.kitpvp.player.ScoreBoardPlayer;
 
 import java.sql.SQLException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class EventlistenersPlayer implements Listener{
     private KitPvP main;
@@ -56,15 +58,17 @@ public class EventlistenersPlayer implements Listener{
 
     //On join setup player info
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event){
+    public void onPlayerJoin(PlayerJoinEvent event) throws ExecutionException, InterruptedException {
         Player player = event.getPlayer();
-        try {
-            CustomPlayer playerData = new CustomPlayer(main, player.getUniqueId());
-            main.getPlayerManager().addCustomPlayer(player.getUniqueId(),playerData);
-        } catch (SQLException ex){
-            player.kickPlayer("Database error");
-        }
-
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            try {
+                CustomPlayer playerData = new CustomPlayer(main, player.getUniqueId());
+                main.getPlayerManager().addCustomPlayer(player.getUniqueId(), playerData);
+            } catch (SQLException ex) {
+                player.kickPlayer("Database error");
+            }
+        });
+        future.get();
         //Player player = event.getPlayer();
         //Check/Create DB record
         //MySQLActions sqlAction = new MySQLActions();
