@@ -3,10 +3,13 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.example.kitpvp.commands.LobbyCommand;
+import org.example.kitpvp.eventslisteners.EventlistenersPlayer;
+import org.example.kitpvp.player.PlayerManager;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.SQLOutput;
 
 
 public final class KitPvP extends JavaPlugin{
@@ -32,7 +35,7 @@ public final class KitPvP extends JavaPlugin{
         //Register BungeeCord as outgoing target for plugin messages
         getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
         //Register Eventlisteners class
-        getServer().getPluginManager().registerEvents(new Eventlisteners(this), this);
+        getServer().getPluginManager().registerEvents(new EventlistenersPlayer(this), this);
         //Create config file if not created yet
         getConfig().options().copyDefaults();
         saveDefaultConfig();

@@ -1,4 +1,4 @@
-package org.example.kitpvp;
+package org.example.kitpvp.player;
 
 import java.util.HashMap;
 import java.util.UUID;

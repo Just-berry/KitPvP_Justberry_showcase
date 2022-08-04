@@ -1,6 +1,7 @@
-package org.example.kitpvp;
+package org.example.kitpvp.player;
 
 import org.bukkit.entity.Player;
+import org.example.kitpvp.KitPvP;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

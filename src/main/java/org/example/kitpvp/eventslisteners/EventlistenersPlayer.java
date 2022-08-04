@@ -1,4 +1,4 @@
-package org.example.kitpvp;
+package org.example.kitpvp.eventslisteners;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -12,13 +12,17 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.example.kitpvp.KitPvP;
+import org.example.kitpvp.KitSelector;
+import org.example.kitpvp.player.CustomPlayer;
+import org.example.kitpvp.player.ScoreBoardPlayer;
 
 import java.sql.SQLException;
 
-public class Eventlisteners implements Listener{
+public class EventlistenersPlayer implements Listener{
     private KitPvP main;
 
-    public  Eventlisteners(KitPvP main){
+    public EventlistenersPlayer(KitPvP main){
         this.main = main;
     }
     //If player gets damaged check if the player health goes below 0

@@ -1,9 +1,10 @@
-package org.example.kitpvp;
+package org.example.kitpvp.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
+import org.example.kitpvp.KitPvP;
 
 public class ScoreBoardPlayer {
     private KitPvP main;

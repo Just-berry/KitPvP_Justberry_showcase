@@ -1,8 +1,9 @@
-package org.example.kitpvp;
+package org.example.kitpvp.commands;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.example.kitpvp.KitPvP;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
